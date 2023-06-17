@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################
 # pwnbase - the smart way to manage wpa handshakes collected by pwnagotchi
 #
-# v0.0.1 - 29.01.2020 
+# v0.0.1 - 29.01.2020
 # * First commit
 #
 # v0.0.2 - 29.01.2020
@@ -17,7 +17,7 @@
 # * Minor updates just to keep alive the software
 #
 # https://github.com/michelep/pwnbase
-# 
+#
 # by O-Zone <o-zone@zerozone.it>
 import paramiko
 import sqlite3
@@ -27,10 +27,11 @@ import subprocess
 import argparse
 
 # <-- CONFIGURATION VALUES
-hostname = '10.10.0.2'
+hostname = '10.0.0.2'
+# hostname = '192.168.1.6'
 port = 22
 username = 'pi'
-password = 'raspberry'
+password = 'Crims0nDynam0!'
 hshakes_r_path = '/home/pi/handshakes/'
 hshakes_l_path = './handshakes/'
 db_path = 'handshakes.db'
@@ -122,7 +123,7 @@ if __name__ == "__main__":
 
 	sftp = s.open_sftp()
 	try:
-		sftp.chdir(hshakes_r_path)	
+		sftp.chdir(hshakes_r_path)
 	except Exception as e:
 		print("[!] Error while fetching handshakes from %s"%(hshakes_r_path))
 		sys.exit(-1)
@@ -144,6 +145,24 @@ if __name__ == "__main__":
 		# Convert to HCCAPX using multicapconverter (https://github.com/s77rt/multicapconverter)
 		try:
 			status = subprocess.call('./multicapconverter.py --quiet --input handshakes/%s --export hccapx'%(f.filename), shell=True)
+			if status < 0:
+				print("Child was terminated by signal %d",status)
+			else:
+				print("Child returned %d"%status)
+		except OSError as e:
+			print("Execution failed: %s"%e)
+
+		try:
+			status = subprocess.call('./multicapconverter.py --quiet --input handshakes/%s --export hcwpax'%(f.filename), shell=True)
+			if status < 0:
+				print("Child was terminated by signal %d",status)
+			else:
+				print("Child returned %d"%status)
+		except OSError as e:
+			print("Execution failed: %s"%e)
+
+		try:
+			status = subprocess.call('./multicapconverter.py --quiet --input handshakes/%s --export hcpmkid'%(f.filename), shell=True)
 			if status < 0:
 				print("Child was terminated by signal %d",status)
 			else:
